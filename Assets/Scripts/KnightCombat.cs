@@ -48,7 +48,11 @@ public class KnightCombat : MonoBehaviour
         // Reset timer
         _timeSinceAttack = 0.0f;
     }
-
+    
+    public void TakeDamage(int damage)
+    {
+        throw new NotImplementedException();
+    }
     private void OnDrawGizmosSelected()
     {
         if (attackPoint != null)

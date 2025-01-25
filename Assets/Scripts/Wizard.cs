@@ -22,6 +22,7 @@ public class Wizard : MonoBehaviour, IDamageable
     private Color originalColor;
     public Color hurtColor = Color.red;
     public float flashDuration = 0.2f;
+    public bool isFacingRight = true;
     
     void Start ()
     {

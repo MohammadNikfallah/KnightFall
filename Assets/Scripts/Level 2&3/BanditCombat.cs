@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DefaultNamespace;
@@ -9,6 +10,7 @@ public class BanditCombat : MonoBehaviour, IPlayerDetector
     private int _currentAttack;
     private double _timeSinceAttack;
     public bool playerIsClose;
+    private Bandit bandit;
     
     [SerializeField] public Transform attackPoint;
     [SerializeField] public float attackRange;
@@ -16,13 +18,22 @@ public class BanditCombat : MonoBehaviour, IPlayerDetector
     [SerializeField] public int attackDamage = 30;
     [SerializeField] public float attackFreq = 10.0f;
     [SerializeField] public float damageDelay = 0.3f;
+
+    private void Start()
+    {
+        bandit = GetComponent<Bandit>();
+    }
+
     void Update() 
     {
-        _timeSinceAttack += Time.deltaTime;
-        detectPlayer();
-        if (playerIsClose && _timeSinceAttack > attackFreq)
+        if (!bandit.isDead)
         {
-            Attack();
+            _timeSinceAttack += Time.deltaTime;
+            detectPlayer();
+            if (playerIsClose && _timeSinceAttack > attackFreq)
+            {
+                Attack();
+            }
         }
     }
 

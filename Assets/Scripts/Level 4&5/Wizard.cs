@@ -33,7 +33,7 @@ public class Wizard : MonoBehaviour, IDamageable, IEdgeDetecter
     private WizardCombat wizardCombat;
 
     private bool isGrounded = false;
-    private bool isDead;
+    public bool isDead;
     private bool receivedHit;
     private bool awaitingDeath;
     private float hitTimer;
@@ -47,7 +47,7 @@ public class Wizard : MonoBehaviour, IDamageable, IEdgeDetecter
     [Header("Visual Effects")]
     public Renderer characterRenderer;
     private Color originalColor;
-    public Color hurtColor = Color.red;
+    public Color hurtColor = Color.white;
     public float flashDuration = 0.2f;
 
     private void Start()
@@ -102,7 +102,6 @@ public class Wizard : MonoBehaviour, IDamageable, IEdgeDetecter
         {
             receivedHit = false;
             StartCoroutine(FlashHurtEffect());
-            animator.SetTrigger("Hurt");
         }
     }
 

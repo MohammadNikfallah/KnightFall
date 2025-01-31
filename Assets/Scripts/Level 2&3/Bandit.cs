@@ -33,7 +33,7 @@ public class Bandit : MonoBehaviour, IDamageable, IEdgeDetecter
     private BanditCombat banditCombat;
 
     private bool isGrounded = false;
-    private bool isDead;
+    public bool isDead;
     private bool receivedHit;
     private bool awaitingDeath;
     private float hitTimer;

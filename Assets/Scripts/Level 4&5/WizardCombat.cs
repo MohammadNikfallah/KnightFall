@@ -24,11 +24,14 @@ public class WizardCombat : MonoBehaviour
 
     void Update()
     {
-        _timeSinceAttack += Time.deltaTime;
-        detectPlayer();
-        if (playerIsClose && _timeSinceAttack > attackFreq)
+        if (!_wizard.isDead)
         {
-            Attack();
+            _timeSinceAttack += Time.deltaTime;
+            detectPlayer();
+            if (playerIsClose && _timeSinceAttack > attackFreq)
+            {
+                Attack();
+            }
         }
     }
     

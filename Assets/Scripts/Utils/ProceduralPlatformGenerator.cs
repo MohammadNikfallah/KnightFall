@@ -10,6 +10,9 @@ public class ProceduralPlatformSpawner : MonoBehaviour
     public float minVerticalDistance = 3f; // Minimum vertical gap
     public float minHorizontalDistance = 2f; // Minimum horizontal gap (edges only)
     public float reachableDistance = 8f; // Max distance for reachability check
+    
+    public GameObject[] enemyPrefabs; // Array of enemy prefabs
+    public float enemySpawnChance = 0.5f; // 50% chance to spawn an enemy at each point
 
     private List<Bounds> spawnedPlatforms = new List<Bounds>(); // Store platform bounds
 
@@ -67,6 +70,28 @@ public class ProceduralPlatformSpawner : MonoBehaviour
         bounds.center = position;
 
         spawnedPlatforms.Add(bounds);
+        
+        SpawnEnemiesOnPlatform(platform);
+    }
+    
+    void SpawnEnemiesOnPlatform(GameObject platform)
+    {
+        // Find all empty GameObjects marked as enemy spawn points
+        Transform[] spawnPoints = platform.GetComponentsInChildren<Transform>();
+
+        foreach (Transform spawnPoint in spawnPoints)
+        {
+            // Ignore the platform's main transform
+            if (!spawnPoint.CompareTag("SpawnPoint")) 
+                continue;
+
+            // Random chance to spawn an enemy at this point
+            if (Random.value < enemySpawnChance)
+            {
+                GameObject enemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+                Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
+            }
+        }
     }
 
     bool CanPlacePlatform(Vector2 position, GameObject prefab)

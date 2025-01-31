@@ -253,10 +253,16 @@ public class Knight : MonoBehaviour
 
     private void Die() => _animator.SetTrigger(Death);
 
-    public void UpdateSouls(int amount)
+    public bool UpdateSouls(int amount)
     {
-        _soulsCount += amount;
-        soulsText.text = _soulsCount.ToString();
+        if (_soulsCount + amount > 0)
+        {
+            _soulsCount += amount;
+            soulsText.text = _soulsCount.ToString();
+            return true;
+        }
+
+        return false;
     }
 
     public void UpdateDamage(int damage) => _knightCombat.attackDamage += damage;

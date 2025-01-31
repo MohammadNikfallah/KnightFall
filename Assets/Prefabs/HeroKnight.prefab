@@ -650,8 +650,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57857ab5120954e45b77a48d8ffbdf16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_speed: 5
-  m_jumpForce: 11
-  m_rollForce: 6
-  m_noBlood: 0
-  m_slideDust: {fileID: 1038168246061390451, guid: 8b8c8cc6774fb074cb9139cc631b108e, type: 3}
+  speed: 5
+  jumpForce: 7.5
+  rollForce: 6
+  slideDust: {fileID: 1038168246061390451, guid: 8b8c8cc6774fb074cb9139cc631b108e, type: 3}
+  attackPoint: {fileID: 5790923545226856764}
+  hitDelay: 0.1
+  dieDelay: 0.3
+  rollShieldTime: 0.5
+  healthBar: {fileID: 0}
+  soulsText: {fileID: 0}
+  maxHealth: 100

@@ -28,7 +28,6 @@ public class KnightCombat : MonoBehaviour
 
         foreach (var enemy in hitEnemies)
         {
-            Debug.Log("enemies got hit" + enemy.name);
             enemy.GetComponent<IDamageable>().TakeDamage(attackDamage);
         }
         

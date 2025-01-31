@@ -7,13 +7,12 @@ public class Knight : MonoBehaviour
 {
     public static Knight Instance { get; private set; }
 
-    [FormerlySerializedAs("m_speed")]
     [SerializeField] private float speed = 4.0f;
     [SerializeField] private float jumpForce = 7.5f;
     [SerializeField] private float rollForce = 6.0f;
+    [SerializeField] private float edgeGrabCooldown = 0.5f;
 
     [Header("Combat Parameters")]
-    [SerializeField] private GameObject slideDust;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float hitDelay = 0.1f;
     [SerializeField] private float dieDelay = 0.3f;
@@ -31,24 +30,26 @@ public class Knight : MonoBehaviour
     private KnightCombat _knightCombat;
     private Rigidbody2D _body2d;
     private Sensor_Knight _groundSensor;
-    private Sensor_Knight _wallSensorR1, _wallSensorR2;
-    private Sensor_Knight _wallSensorL1, _wallSensorL2;
+    private KnighEdgeSensor _edgeSensor;
+    private KnighEdgeSensor _aboveEdgeSensor;
+    private KnighEdgeSensor _behindEdgeSensor;
 
-    private bool _isWallSliding;
     private bool _grounded;
     private bool _rolling;
     private bool _rollShield;
+    private bool _edgeGrabbing;
+    private bool _canGrabEdge = true;
     private int _facingDirection = 1;
     private int _soulsCount;
 
     private float _delayToIdle;
     private float _rollDuration = 8.0f / 14.0f;
     private float _rollTimer;
+    private float _edgeTimer;
     private float _rollCurrentTime;
     
     private static readonly int Grounded = Animator.StringToHash("Grounded");
     private static readonly int AirSpeedY = Animator.StringToHash("AirSpeedY");
-    private static readonly int WallSlide = Animator.StringToHash("WallSlide");
     private static readonly int Death = Animator.StringToHash("Death");
     private static readonly int Block = Animator.StringToHash("Block");
     private static readonly int IdleBlock = Animator.StringToHash("IdleBlock");
@@ -56,6 +57,7 @@ public class Knight : MonoBehaviour
     private static readonly int JumpS = Animator.StringToHash("Jump");
     private static readonly int AnimState = Animator.StringToHash("AnimState");
     private static readonly int Hurt = Animator.StringToHash("Hurt");
+    private static readonly int EdgeGrab = Animator.StringToHash("EdgeGrab");
 
     private void Awake()
     {
@@ -84,24 +86,47 @@ public class Knight : MonoBehaviour
         _knightCombat = GetComponent<KnightCombat>();
 
         _groundSensor = transform.Find("GroundSensor").GetComponent<Sensor_Knight>();
-        _wallSensorR1 = transform.Find("WallSensor_R1").GetComponent<Sensor_Knight>();
-        _wallSensorR2 = transform.Find("WallSensor_R2").GetComponent<Sensor_Knight>();
-        _wallSensorL1 = transform.Find("WallSensor_L1").GetComponent<Sensor_Knight>();
-        _wallSensorL2 = transform.Find("WallSensor_L2").GetComponent<Sensor_Knight>();
+        _edgeSensor = transform.Find("EdgeSensor").GetComponent<KnighEdgeSensor>();
+        _aboveEdgeSensor = transform.Find("AboveEdgeSensor").GetComponent<KnighEdgeSensor>();
+        _behindEdgeSensor = transform.Find("BehindEdgeSensor").GetComponent<KnighEdgeSensor>();
     }
 
     private void Update()
     {
         HandleTimers();
         HandleGroundCheck();
+        HandleEdgeGrab();
         HandleMovement();
         HandleAnimations();
         CheckRespawn();
+    }
+    
+    private void HandleEdgeGrab()
+    {
+        if (!_edgeGrabbing && _edgeSensor.isGround && !_aboveEdgeSensor.isGround && !_behindEdgeSensor.isGround && _canGrabEdge)
+        {
+            _edgeGrabbing = true;
+            _body2d.velocity = Vector2.zero;
+            _body2d.gravityScale = 0;
+            _animator.SetTrigger(EdgeGrab);
+        }
+        
+        if (_edgeGrabbing && Input.GetKeyDown(KeyCode.Space))
+        {
+            _edgeGrabbing = false;
+            _edgeTimer = 0f;
+            _canGrabEdge = false;
+            _body2d.gravityScale = 2.75f;
+            _animator.SetTrigger(JumpS);
+            _body2d.velocity = new Vector2(_body2d.velocity.x, jumpForce);
+        }
     }
 
     private void HandleTimers()
     {
         _rollTimer += Time.deltaTime;
+        _edgeTimer += Time.deltaTime;
+        if (_edgeTimer > edgeGrabCooldown) _canGrabEdge = true;
         if (_rollTimer > rollShieldTime) _rollShield = false;
         if (_rolling) _rollCurrentTime += Time.deltaTime;
         if (_rollCurrentTime > _rollDuration) _rolling = false;
@@ -123,6 +148,7 @@ public class Knight : MonoBehaviour
 
     private void HandleMovement()
     {
+        if (_edgeGrabbing) return;
         float inputX = Input.GetAxis("Horizontal");
 
         if (inputX != 0) FlipCharacter(inputX);
@@ -143,6 +169,18 @@ public class Knight : MonoBehaviour
             Vector3 attackPos = attackPoint.localPosition;
             attackPos.x *= -1;
             attackPoint.localPosition = attackPos;
+            
+            Vector3 edgePos = _edgeSensor.transform.localPosition;
+            edgePos.x *= -1;
+            _edgeSensor.transform.localPosition = edgePos;
+        
+            Vector3 aboveEdgePos = _aboveEdgeSensor.transform.localPosition;
+            aboveEdgePos.x *= -1;
+            _aboveEdgeSensor.transform.localPosition = aboveEdgePos;
+        
+            Vector3 behindEdgePos = _behindEdgeSensor.transform.localPosition;
+            behindEdgePos.x *= -1;
+            _behindEdgeSensor.transform.localPosition = behindEdgePos;
         }
 
         _facingDirection = facingRight ? 1 : -1;
@@ -150,13 +188,9 @@ public class Knight : MonoBehaviour
 
     private void HandleAnimations()
     {
-        _isWallSliding = (_wallSensorR1.State() && _wallSensorR2.State()) || (_wallSensorL1.State() && _wallSensorL2.State());
-        _animator.SetBool(WallSlide, _isWallSliding);
-
         if (Input.GetKeyDown("e") && !_rolling) _animator.SetTrigger(Death);
         else if (Input.GetMouseButtonDown(1) && !_rolling) StartBlocking();
         else if (Input.GetMouseButtonUp(1)) StopBlocking();
-        else if (Input.GetKeyDown("left shift") && !_rolling && !_isWallSliding) StartRoll();
         else if (Input.GetKeyDown("space") && _grounded && !_rolling) Jump();
         else if (Mathf.Abs(Input.GetAxis("Horizontal")) > Mathf.Epsilon) Run();
         else Idle();

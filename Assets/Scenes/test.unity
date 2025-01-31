@@ -387,11 +387,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &495930027 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5790923545226856764, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-  m_PrefabInstance: {fileID: 7453035984477375636}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2116,26 +2111,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 213669040046888234, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 213669040046888234, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 325328389573253788, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
-      value: 256
-      objectReference: {fileID: 0}
-    - target: {fileID: 325328389573253788, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_IncludeLayers.m_Bits
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 428026821730059123, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
-      value: 256
-      objectReference: {fileID: 0}
     - target: {fileID: 939640305722205752, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.11
@@ -2176,74 +2151,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1205292051083374107, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1386228529066815105, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2547838622352568694, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
-      value: 256
-      objectReference: {fileID: 0}
-    - target: {fileID: 4058856038399352414, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
-      value: 256
-      objectReference: {fileID: 0}
-    - target: {fileID: 4470611596138570549, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5091221001957462523, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6803825103955166104, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7852371951249151482, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
       propertyPath: m_Name
       value: HeroKnight
       objectReference: {fileID: 0}
-    - target: {fileID: 7852371951249151482, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 7852371951249151482, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: HealthBar
-      value: 
-      objectReference: {fileID: 1316951400}
     - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 1316951400}
     - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: jumpForce
-      value: 12.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: maxHealth
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
       propertyPath: soulsText
       value: 
       objectReference: {fileID: 672508072}
-    - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: AttackPoint
-      value: 
-      objectReference: {fileID: 495930027}
-    - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: rollShieldTime
-      value: 0.5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

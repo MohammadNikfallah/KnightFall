@@ -87,18 +87,18 @@ public class WizardCombat : MonoBehaviour
     }
 
     // Visualize the semicircular range
-    private void OnDrawGizmosSelected()
-    {
-        if (attackPoint == null) return;
-
-        Gizmos.color = Color.red;
-
-        // Draw the full circle
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-
-        // Draw semicircle (forward-facing direction)
-        Vector3 facingDirection = _wizard.moveDirection == 1 ? Vector3.right : Vector3.left;
-        Gizmos.DrawLine(attackPoint.position, attackPoint.position + Quaternion.Euler(0, 0, 45) * facingDirection * attackRange);
-        Gizmos.DrawLine(attackPoint.position, attackPoint.position + Quaternion.Euler(0, 0, -45) * facingDirection * attackRange);
-    }
+    // private void OnDrawGizmosSelected()
+    // {
+    //     if (attackPoint == null) return;
+    //
+    //     Gizmos.color = Color.red;
+    //
+    //     // Draw the full circle
+    //     Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+    //
+    //     // Draw semicircle (forward-facing direction)
+    //     Vector3 facingDirection = _wizard.moveDirection == 1 ? Vector3.right : Vector3.left;
+    //     Gizmos.DrawLine(attackPoint.position, attackPoint.position + Quaternion.Euler(0, 0, 45) * facingDirection * attackRange);
+    //     Gizmos.DrawLine(attackPoint.position, attackPoint.position + Quaternion.Euler(0, 0, -45) * facingDirection * attackRange);
+    // }
 }

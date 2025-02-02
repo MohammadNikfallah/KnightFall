@@ -1,9 +1,14 @@
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
+using Random = UnityEngine.Random;
 
 public class ProceduralPlatformSpawner : MonoBehaviour
 {
+    [SerializeField] private GameObject playerPrefab;
+    [SerializeField] private Transform spawnPoint;
     public GameObject[] platformPrefabs; // Array of platform prefabs
     public int platformCount = 10; // Number of platforms to spawn
     public Vector2Int gridSize = new Vector2Int(40, 15); // Grid size (increase width)
@@ -12,13 +17,71 @@ public class ProceduralPlatformSpawner : MonoBehaviour
     public float reachableDistance = 8f; // Max distance for reachability check
     
     public GameObject[] enemyPrefabs; // Array of enemy prefabs
+    public GameObject specialPrefab; // Prefab to spawn in center & top of platform
     public float enemySpawnChance = 0.5f; // 50% chance to spawn an enemy at each point
 
     private List<Bounds> spawnedPlatforms = new List<Bounds>(); // Store platform bounds
 
     void Start()
     {
+    }
+    
+    private void Awake()
+    {
         GenerateLevel();
+        SceneManager.sceneLoaded += OnSceneLoaded; // Subscribe in Awake
+        OnSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single);
+    }
+
+    
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    { 
+        Debug.Log("Scene Loaded: " + scene.name);
+        Debug.Log("Knight Instance: " + Knight.Instance);
+        Debug.Log("Knight Instance.gameObejct: " + Knight.Instance.gameObject);
+        if (Knight.Instance == null)
+        {
+            Debug.LogWarning("Knight.Instance is NULL! Creating a new instance...");
+            SpawnKnight();
+        }
+        else if (Knight.Instance.gameObject == null)
+        {
+            Debug.Log("fuck");
+            Debug.LogWarning("Knight GameObject is NULL! Respawning Knight...");
+            SpawnKnight();
+        }
+    }
+    
+    public void SpawnKnight()
+    {
+        if (playerPrefab == null)
+        {
+            Debug.LogError("playerPrefab is NOT assigned in the Inspector!");
+            return;
+        }
+
+        if (spawnPoint == null)
+        {
+            Debug.LogError("spawnPoint is NOT assigned in the Inspector! Using default position.");
+            spawnPoint = new GameObject("DefaultSpawn").transform;
+            spawnPoint.position = Vector3.zero;
+        }
+
+        GameObject newKnight = Instantiate(playerPrefab, spawnPoint.position, Quaternion.identity);
+        newKnight.SetActive(true); // Ensure it's active
+
+        if (Knight.Instance == null)
+        {
+            Debug.LogWarning("Knight.Instance is NULL! Manually assigning...");
+            Knight.Instance = newKnight.GetComponent<Knight>(); // Assign manually
+        }
+
+        Knight.Instance.SetKnightGameObject(newKnight);
+        Debug.Log("Knight successfully spawned.");
     }
 
     void GenerateLevel()
@@ -53,6 +116,28 @@ public class ProceduralPlatformSpawner : MonoBehaviour
                 attempts++;
             }
         }
+        
+        SpawnSpecialOnRandomPlatform();
+    }
+    
+    void SpawnSpecialOnRandomPlatform()
+    {
+        if (spawnedPlatforms.Count == 0)
+        {
+            Debug.LogWarning("No platforms available to spawn the special object.");
+            return;
+        }
+
+        // 🔹 Select a random platform
+        Bounds selectedPlatform = spawnedPlatforms[Random.Range(0, spawnedPlatforms.Count)];
+
+        // 🔹 Calculate positions
+        Vector2 centerPosition = new Vector2(selectedPlatform.center.x, selectedPlatform.center.y);
+        Vector2 topPosition = new Vector2(selectedPlatform.center.x, selectedPlatform.max.y + 1f); // Slightly above top
+
+        // 🔹 Spawn the special prefab at the center and top
+        // Instantiate(specialPrefab, centerPosition, Quaternion.identity);
+        Instantiate(specialPrefab, topPosition, Quaternion.identity);
     }
 
     void SpawnPlatform(Vector2 position, GameObject prefab)

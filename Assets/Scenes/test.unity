@@ -492,24 +492,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f36103d4d59f3d4d92777e1aa08f7b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knight: {fileID: 664229515}
   offset: {x: 0, y: 0}
---- !u!4 &664229515 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 939640305722205752, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-  m_PrefabInstance: {fileID: 7453035984477375636}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &672508072 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8898172033973591665, guid: bf8dbc83f7e57a9438809fa035062af4, type: 3}
-  m_PrefabInstance: {fileID: 5453651923033660570}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1037880714
 GameObject:
   m_ObjectHideFlags: 0
@@ -1752,17 +1735,6 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
---- !u!114 &1316951400 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4275798197266310195, guid: bf8dbc83f7e57a9438809fa035062af4, type: 3}
-  m_PrefabInstance: {fileID: 5453651923033660570}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1507642283
 GameObject:
   m_ObjectHideFlags: 0
@@ -2158,11 +2130,11 @@ PrefabInstance:
     - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
       propertyPath: healthBar
       value: 
-      objectReference: {fileID: 1316951400}
+      objectReference: {fileID: 0}
     - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
       propertyPath: soulsText
       value: 
-      objectReference: {fileID: 672508072}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

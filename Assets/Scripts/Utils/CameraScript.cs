@@ -4,16 +4,23 @@ using UnityEngine;
 
 public class CameraScript : MonoBehaviour
 {
-    [SerializeField] public Transform knight;
+    private Transform player;
     [SerializeField] public Vector2 offset;
     void Start()
     {
-        
+        if (player == null)
+        {
+            GameObject foundPlayer = GameObject.FindGameObjectWithTag("Player");
+            if (foundPlayer != null)
+            {
+                player = foundPlayer.transform;
+            }
+        }
     }
 
     void Update()
     {
-        var position = knight.position;
+        var position = player.position;
         position.z--;
         transform.position = position;
     }

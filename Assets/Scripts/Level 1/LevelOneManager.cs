@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class LevelOneManager : MonoBehaviour
 {
-    [SerializeField] public GameObject player;
+    private GameObject player;
+    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private GameObject playerPrefab;
 
     private int _healthUpgrade = 20;
     private int[] _UpgradeCost = {600, 1100, 1600, 2100};
@@ -14,7 +16,7 @@ public class LevelOneManager : MonoBehaviour
     
     void Start()
     {
-        
+        player = GameObject.Find("HeroKnight");
     }
 
     void Update()
@@ -24,15 +26,17 @@ public class LevelOneManager : MonoBehaviour
             if (player.gameObject.GetComponent<Knight>().UpdateSouls(-1 * _UpgradeCost[_healthLevel]))
             {
                 player.gameObject.GetComponent<Knight>().UpdateDamage(_damageUpgrade);
-                _healthLevel++;
+                if (_healthLevel < 3)
+                    _healthLevel++;
             }
         }
         else if (Input.GetKeyUp("l"))
         {
             if (player.gameObject.GetComponent<Knight>().UpdateSouls(-1 * _UpgradeCost[_damageLevel]))
             {
-                player.gameObject.GetComponent<Knight>().UpdateDamage(_healthUpgrade);
-                _damageLevel++;
+                player.gameObject.GetComponent<Knight>().UpdateHealth(_healthUpgrade);
+                if (_damageLevel < 3)
+                    _damageLevel++;
             }
         }
     }

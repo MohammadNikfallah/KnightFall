@@ -58,7 +58,7 @@ Transform:
   m_GameObject: {fileID: 5981269325676285362}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.47, y: 0.23, z: 0}
+  m_LocalPosition: {x: -0.47, y: 0.59, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -328,6 +328,8 @@ MonoBehaviour:
   returnTime: 3
   floatingTextPrefab: {fileID: 748608848981592728, guid: 19b8b1f34bde3fb49a51144d088c3330, type: 3}
   floatingTextOffset: {x: 0, y: 1.5, z: 0}
+  bloodSplashPrefab: {fileID: 7892355738726404671, guid: 3a285fc3ff4d6664fb280eefb78bfdbd, type: 3}
+  isDead: 0
 --- !u!114 &6938380331371984897
 MonoBehaviour:
   m_ObjectHideFlags: 0

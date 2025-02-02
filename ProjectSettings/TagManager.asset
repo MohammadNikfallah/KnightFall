@@ -7,6 +7,9 @@ TagManager:
   - New tag
   - Death
   - Platform
+  - SpawnPoint
+  - SoulsCount
+  - HealthBar
   layers:
   - Default
   - TransparentFX
@@ -18,7 +21,7 @@ TagManager:
   - Player
   - Enemies
   - Wall
-  - 
+  - Background
   - 
   - 
   - 

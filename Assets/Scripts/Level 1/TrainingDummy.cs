@@ -14,11 +14,15 @@ public class TrainingDummy : MonoBehaviour, IDamageable
     private Color originalColor;
     public GameObject floatingTextPrefab;
     public Vector3 floatingTextOffset;
+    public float jiggleAmount = 10f;
+    public float jiggleDuration = 0.2f;
+    private GameObject player;
 
     // Start is called before the first frame   update
     void Start()
     {
         originalColor = characterRenderer.material.color;
+        player = GameObject.Find("HeroKnight");
     }
 
     // Update is called once per frame
@@ -31,7 +35,6 @@ public class TrainingDummy : MonoBehaviour, IDamageable
     {
         if (receivedHit)
         {
-            Debug.Log("in if");
             receivedHit = false;
             StartCoroutine(FlashHurtEffect());
         }
@@ -39,7 +42,6 @@ public class TrainingDummy : MonoBehaviour, IDamageable
     
     private IEnumerator FlashHurtEffect()
     {
-        Debug.Log("in flash");
         characterRenderer.material.color = hurtColor;
         yield return new WaitForSeconds(flashDuration);
         characterRenderer.material.color = originalColor;
@@ -47,10 +49,10 @@ public class TrainingDummy : MonoBehaviour, IDamageable
     
     public void TakeDamage(int damage)
     {
-        Debug.Log("take damage");
         ShowFloatingText(damage);
         hitTimer = 0f;
         receivedHit = true;
+        StartCoroutine(JiggleEffect(player.transform.position - gameObject.transform.position));
     }
     
     private void ShowFloatingText(int damage)
@@ -60,5 +62,22 @@ public class TrainingDummy : MonoBehaviour, IDamageable
             GameObject textObject = Instantiate(floatingTextPrefab, transform.position + floatingTextOffset, Quaternion.identity);
             textObject.transform.GetChild(0).GetComponent<TextMesh>().text = damage.ToString();
         }
+    }
+    
+    private IEnumerator JiggleEffect(Vector2 hitDirection)
+    {
+        Debug.Log(hitDirection);
+        float elapsedTime = 0f;
+        float jiggleDirection = hitDirection.x > 0 ? 1f : -1f; // Determine direction based on hit source
+
+        while (elapsedTime < jiggleDuration)
+        {
+            float angle = Mathf.Sin(elapsedTime / jiggleDuration * Mathf.PI) * jiggleAmount * jiggleDirection;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        
+        transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 }

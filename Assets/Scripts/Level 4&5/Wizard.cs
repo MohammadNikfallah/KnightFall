@@ -26,6 +26,9 @@ public class Wizard : MonoBehaviour, IDamageable, IEdgeDetecter
     [Header("UI Elements")]
     [SerializeField] private GameObject floatingTextPrefab;
     [SerializeField] private Vector3 floatingTextOffset;
+    
+    [Header("Blood Effect")]
+    [SerializeField] private GameObject bloodSplashPrefab;
 
     private Animator animator;
     private Rigidbody2D rigidBody;
@@ -210,10 +213,22 @@ public class Wizard : MonoBehaviour, IDamageable, IEdgeDetecter
 
             if (currentHealth <= 0)
             {
+                SplashBlood();
+                
                 awaitingDeath = true;
                 isDead = true;
             }
         }
+    }
+    
+    private void SplashBlood()
+    {
+        Vector3 bloodPosition = transform.position + new Vector3(moveDirection * -0.5f, -0.5f, 0); // Offset behind the enemy
+        GameObject bloodEffect = Instantiate(bloodSplashPrefab, bloodPosition, Quaternion.identity);
+        
+        bloodEffect.transform.Rotate(new Vector3(180f, -moveDirection * -90f,0f)); 
+
+        Destroy(bloodEffect, deathDelay);
     }
 
     private IEnumerator FlashHurtEffect()

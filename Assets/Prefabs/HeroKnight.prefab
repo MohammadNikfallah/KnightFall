@@ -774,7 +774,7 @@ BoxCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -839,13 +839,12 @@ MonoBehaviour:
   jumpForce: 16
   rollForce: 6
   edgeGrabCooldown: 0.5
+  respawnDelay: 2
   attackPoint: {fileID: 5790923545226856764}
   hitDelay: 0.1
   dieDelay: 0.3
   rollShieldTime: 0.5
-  healthBar: {fileID: 0}
-  soulsText: {fileID: 0}
-  maxHealth: 200
+  maxHealth: 100
 --- !u!1 &8141789084919370951
 GameObject:
   m_ObjectHideFlags: 0

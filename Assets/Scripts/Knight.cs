@@ -1,16 +1,20 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class Knight : MonoBehaviour
 {
-    public static Knight Instance { get; private set; }
+    public static Knight Instance { get; set; }
 
     [SerializeField] private float speed = 4.0f;
     [SerializeField] private float jumpForce = 7.5f;
     [SerializeField] private float rollForce = 6.0f;
     [SerializeField] private float edgeGrabCooldown = 0.5f;
+    [SerializeField] private float respawnDelay = 2.0f;
 
     [Header("Combat Parameters")]
     [SerializeField] private Transform attackPoint;
@@ -19,11 +23,13 @@ public class Knight : MonoBehaviour
     [SerializeField] private float rollShieldTime = 0.5f;
 
     [Header("UI Elements")]
-    [SerializeField] private Image healthBar;
-    [SerializeField] private TextMeshProUGUI soulsText;
+    private Image healthBar;
+    private Image healthBarCover;
+    private TextMeshProUGUI soulsText;
 
     [Header("Health Parameters")]
-    [SerializeField] private float maxHealth = 100.0f;
+    [SerializeField] private float maxHealh = 100.0f;
+    private const float startingHealth = 100.0f;
     private float _currentHealth;
 
     private Animator _animator;
@@ -43,7 +49,7 @@ public class Knight : MonoBehaviour
     private int _soulsCount;
 
     private float _delayToIdle;
-    private float _rollDuration = 8.0f / 14.0f;
+    private float _rollDuration = 0.5f;
     private float _rollTimer;
     private float _edgeTimer;
     private float _rollCurrentTime;
@@ -64,20 +70,61 @@ public class Knight : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(this);
 
-            // Initialize only once
+            // Initialize Components
             InitializeComponents();
 
-            // Ensure health persists and is not reset when reloading scenes
-            if (_currentHealth <= 0)
-                _currentHealth = maxHealth;
+            // Subscribe to scene loaded event
+            SceneManager.sceneLoaded += Instance.OnSceneLoaded;
         }
         else
         {
             Destroy(gameObject);
         }
+        
+        if (Instance._currentHealth <= 0)
+        {
+            Instance._currentHealth = Instance.maxHealh;
+        }
+        InitializeComponents();
+
+        UpdateSouls(0);
+        UpdateHealth(0);
+        UpdateDamage(0);
     }
+    
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        InitializeUI();
+        
+        _animator.Play("Fall", 0, 0f);
+        HandleAnimations();
+        var spawnPoint = GameObject.Find("SpawnPoint");
+        Instance.transform.position = spawnPoint.transform.position;
+    }
+
+    private void InitializeUI()
+    {
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas != null)
+        {
+            Debug.Log("in ui initialize");
+            healthBar = canvas.transform.Find("HealthBar Filled")?.GetComponent<Image>();
+            healthBarCover = canvas.transform.Find("Healthbar Background")?.GetComponent<Image>();
+            soulsText = canvas.transform.Find("SoulCount")?.GetComponent<TextMeshProUGUI>();
+
+            if (healthBar == null) Debug.LogError("HealthBar not found in Canvas.");
+            if (healthBarCover == null) Debug.LogError("HealthBarCover not found in Canvas.");
+            if (soulsText == null) Debug.LogError("SoulsText not found in Canvas.");
+        }
+        else
+        {
+            Debug.LogError("Canvas not found in the scene.");
+        }
+    }
+
+
 
     private void InitializeComponents()
     {
@@ -85,11 +132,15 @@ public class Knight : MonoBehaviour
         _body2d = GetComponent<Rigidbody2D>();
         _knightCombat = GetComponent<KnightCombat>();
 
-        _groundSensor = transform.Find("GroundSensor").GetComponent<Sensor_Knight>();
-        _edgeSensor = transform.Find("EdgeSensor").GetComponent<KnighEdgeSensor>();
-        _aboveEdgeSensor = transform.Find("AboveEdgeSensor").GetComponent<KnighEdgeSensor>();
-        _behindEdgeSensor = transform.Find("BehindEdgeSensor").GetComponent<KnighEdgeSensor>();
+        _groundSensor = transform.Find("GroundSensor")?.GetComponent<Sensor_Knight>();
+        _edgeSensor = transform.Find("EdgeSensor")?.GetComponent<KnighEdgeSensor>();
+        _aboveEdgeSensor = transform.Find("AboveEdgeSensor")?.GetComponent<KnighEdgeSensor>();
+        _behindEdgeSensor = transform.Find("BehindEdgeSensor")?.GetComponent<KnighEdgeSensor>();
+
+        // UI elements will be initialized separately on scene load
+        InitializeUI();
     }
+
 
     private void Update()
     {
@@ -99,23 +150,24 @@ public class Knight : MonoBehaviour
         HandleMovement();
         HandleAnimations();
         CheckRespawn();
+        CheckRespawn();
     }
     
     private void HandleEdgeGrab()
     {
-        if (!_edgeGrabbing && _edgeSensor.isGround && !_aboveEdgeSensor.isGround && !_behindEdgeSensor.isGround && _canGrabEdge)
+        if (!Instance._edgeGrabbing && _edgeSensor.isGround && !_aboveEdgeSensor.isGround && !_behindEdgeSensor.isGround && Instance._canGrabEdge)
         {
-            _edgeGrabbing = true;
+            Instance._edgeGrabbing = true;
             _body2d.velocity = Vector2.zero;
             _body2d.gravityScale = 0;
             _animator.SetTrigger(EdgeGrab);
         }
         
-        if (_edgeGrabbing && Input.GetKeyDown(KeyCode.Space))
+        if (Instance._edgeGrabbing && Input.GetKeyDown(KeyCode.Space))
         {
-            _edgeGrabbing = false;
-            _edgeTimer = 0f;
-            _canGrabEdge = false;
+            Instance._edgeGrabbing = false;
+            Instance._edgeTimer = 0f;
+            Instance._canGrabEdge = false;
             _body2d.gravityScale = 2.75f;
             _animator.SetTrigger(JumpS);
             _body2d.velocity = new Vector2(_body2d.velocity.x, jumpForce);
@@ -124,36 +176,35 @@ public class Knight : MonoBehaviour
 
     private void HandleTimers()
     {
-        _rollTimer += Time.deltaTime;
-        _edgeTimer += Time.deltaTime;
-        if (_edgeTimer > edgeGrabCooldown) _canGrabEdge = true;
-        if (_rollTimer > rollShieldTime) _rollShield = false;
-        if (_rolling) _rollCurrentTime += Time.deltaTime;
-        if (_rollCurrentTime > _rollDuration) _rolling = false;
+        Instance._rollTimer += Time.deltaTime;
+        Instance._edgeTimer += Time.deltaTime;
+        if (Instance._edgeTimer > edgeGrabCooldown) Instance._canGrabEdge = true;
+        if (Instance._rollTimer > rollShieldTime) Instance._rollShield = false;
+        if (Instance._rollTimer > _rollDuration) Instance._rolling = false;
     }
 
     private void HandleGroundCheck()
     {
-        if (!_grounded && _groundSensor.State())
+        if (!Instance._grounded && _groundSensor.State())
         {
-            _grounded = true;
-            _animator.SetBool(Grounded, _grounded);
+            Instance._grounded = true;
+            _animator.SetBool(Grounded, Instance._grounded);
         }
-        else if (_grounded && !_groundSensor.State())
+        else if (Instance._grounded && !_groundSensor.State())
         {
-            _grounded = false;
-            _animator.SetBool(Grounded, _grounded);
+            Instance._grounded = false;
+            _animator.SetBool(Grounded, Instance._grounded);
         }
     }
 
     private void HandleMovement()
     {
-        if (_edgeGrabbing) return;
+        if (Instance._edgeGrabbing) return;
         float inputX = Input.GetAxis("Horizontal");
 
         if (inputX != 0) FlipCharacter(inputX);
 
-        if (!_rolling)
+        if (!Instance._rolling)
             _body2d.velocity = new Vector2(inputX * speed, _body2d.velocity.y);
 
         _animator.SetFloat(AirSpeedY, _body2d.velocity.y);
@@ -164,7 +215,7 @@ public class Knight : MonoBehaviour
         bool facingRight = direction > 0;
         GetComponent<SpriteRenderer>().flipX = !facingRight;
 
-        if ((_facingDirection == 1 && !facingRight) || (_facingDirection == -1 && facingRight))
+        if ((Instance._facingDirection == 1 && !facingRight) || (Instance._facingDirection == -1 && facingRight))
         {
             Vector3 attackPos = attackPoint.localPosition;
             attackPos.x *= -1;
@@ -183,17 +234,17 @@ public class Knight : MonoBehaviour
             _behindEdgeSensor.transform.localPosition = behindEdgePos;
         }
 
-        _facingDirection = facingRight ? 1 : -1;
+        Instance._facingDirection = facingRight ? 1 : -1;
     }
 
     private void HandleAnimations()
     {
-        if (Input.GetKeyDown("e") && !_rolling) _animator.SetTrigger(Death);
-        else if (Input.GetMouseButtonDown(1) && !_rolling) StartBlocking();
-        else if (Input.GetMouseButtonUp(1)) StopBlocking();
-        else if (Input.GetKeyDown("space") && _grounded && !_rolling) Jump();
-        else if (Mathf.Abs(Input.GetAxis("Horizontal")) > Mathf.Epsilon) Run();
-        else Idle();
+        // if (Input.GetMouseButtonDown(1) && !Instance._rolling) StartBlocking();
+        // else if (Input.GetMouseButtonUp(1)) StopBlocking();
+        if (Input.GetKeyDown("left shift") && Instance._grounded && !Instance._rolling && !Instance._edgeGrabbing) StartRoll();
+        else if (Input.GetKeyDown("space") && Instance._grounded && !Instance._rolling && !Instance._rolling) Jump();
+        else if (Mathf.Abs(Input.GetAxis("Horizontal")) > Mathf.Epsilon && !Instance._edgeGrabbing) Run();
+        else if(!Instance._edgeGrabbing) Idle();
     }
 
     private void StartBlocking()
@@ -206,17 +257,17 @@ public class Knight : MonoBehaviour
 
     private void StartRoll()
     {
-        _rolling = true;
-        _rollShield = true;
-        _rollTimer = 0.0f;
+        Instance._rolling = true;
+        Instance._rollShield = true;
+        Instance._rollTimer = 0.0f;
         _animator.SetTrigger(Roll);
-        _body2d.velocity = new Vector2(_facingDirection * rollForce, _body2d.velocity.y);
+        _body2d.velocity = new Vector2(Instance._facingDirection * rollForce, _body2d.velocity.y);
     }
 
     private void Jump()
     {
         _animator.SetTrigger(JumpS);
-        _grounded = false;
+        Instance._grounded = false;
         _animator.SetBool(Grounded, false);
         _body2d.velocity = new Vector2(_body2d.velocity.x, jumpForce);
         _groundSensor.Disable(0.2f);
@@ -224,14 +275,14 @@ public class Knight : MonoBehaviour
 
     private void Run()
     {
-        _delayToIdle = 0.05f;
+        Instance._delayToIdle = 0.05f;
         _animator.SetInteger(AnimState, 1);
     }
 
     private void Idle()
     {
-        _delayToIdle -= Time.deltaTime;
-        if (_delayToIdle < 0) _animator.SetInteger(AnimState, 0);
+        Instance._delayToIdle -= Time.deltaTime;
+        if (Instance._delayToIdle < 0) _animator.SetInteger(AnimState, 0);
     }
 
     private void CheckRespawn()
@@ -242,34 +293,69 @@ public class Knight : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (_rollShield) return;
+        if (Instance._rollShield) return;
 
-        _currentHealth -= damage;
-        healthBar.fillAmount = _currentHealth / maxHealth;
+        Instance._currentHealth -= damage;
+        healthBar.fillAmount = Instance._currentHealth / Instance.maxHealh;
 
-        if (_currentHealth <= 0) Die();
+        if (Instance._currentHealth <= 0) Die();
         else _animator.SetTrigger(Hurt);
     }
 
-    private void Die() => _animator.SetTrigger(Death);
+    private void Die()
+    {
+        _animator.SetTrigger(Death);
+        
+        StartCoroutine(RespawnAfterDeath());
+    }
+    
+    private IEnumerator RespawnAfterDeath()
+    {
+        yield return new WaitForSeconds(respawnDelay);
+        SceneManager.LoadScene(0);
+    }
 
     public bool UpdateSouls(int amount)
     {
-        if (_soulsCount + amount > 0)
+        if(soulsText == null)
+            InitializeUI();
+        Debug.Log("tried to update souls");
+        if (Instance._soulsCount + amount >= 0)
         {
-            _soulsCount += amount;
-            soulsText.text = _soulsCount.ToString();
+            Instance._soulsCount += amount;
+            soulsText.text = Instance._soulsCount.ToString();
             return true;
         }
 
         return false;
     }
+    
+    public void SetKnightGameObject(GameObject newKnight)
+    {
+        this.gameObject.transform.position = newKnight.transform.position; // Optional: Sync position
+    }
 
-    public void UpdateDamage(int damage) => _knightCombat.attackDamage += damage;
+
+    public void UpdateDamage(int damage)
+    {
+        if(healthBar == null)
+            InitializeUI();
+        _knightCombat.attackDamage += damage;
+    }
 
     public void UpdateHealth(int health)
     {
-        maxHealth += health;
-        _currentHealth = maxHealth;
+        Instance.maxHealh += health;
+        float healthPercent = Instance.maxHealh / startingHealth;
+        healthBar.rectTransform.localScale = new(healthPercent, 1f, 1f);
+        healthBarCover.rectTransform.localScale = new(1f, 1f, 1f);
+        float healthCoverSize = healthBar.rectTransform.sizeDelta.x * healthBar.rectTransform.localScale.x + 20;
+        healthBarCover.rectTransform.sizeDelta = new(healthCoverSize,healthBarCover.rectTransform.sizeDelta.y);
+        Instance._currentHealth = Instance.maxHealh;
+    }
+
+    public bool CanAttack()
+    {
+        return !_rolling && !_edgeGrabbing;
     }
 }

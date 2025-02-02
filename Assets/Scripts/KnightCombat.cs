@@ -1,6 +1,7 @@
 using System;
 using DefaultNamespace;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 public class KnightCombat : MonoBehaviour
@@ -8,15 +9,22 @@ public class KnightCombat : MonoBehaviour
     public Animator animator;
     private int _currentAttack;
     private double _timeSinceAttack;
+    private Knight knight;
     
     [SerializeField] public Transform attackPoint;
     [SerializeField] public float attackRange;
     [SerializeField] public LayerMask enemyLayers;
     [FormerlySerializedAs("damage")] [SerializeField] public int attackDamage = 30;
+
+    private void Awake()
+    {
+        knight = GetComponent<Knight>();
+    }
+
     void Update() 
     {
         _timeSinceAttack += Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.Mouse0) && _timeSinceAttack > 0.4f)
+        if (Input.GetKeyDown(KeyCode.Mouse0) && _timeSinceAttack > 0.4f && knight.CanAttack())
         {
             Attack();
         }

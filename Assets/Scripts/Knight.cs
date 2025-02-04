@@ -104,6 +104,8 @@ public class Knight : MonoBehaviour
     
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (scene.buildIndex == 0)
+            _currentHealth = maxHealth;
         InitializeUI();
         _isDead = false;
         updateSoulUI();

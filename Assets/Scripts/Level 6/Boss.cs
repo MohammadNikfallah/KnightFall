@@ -31,6 +31,7 @@ public class Boss : MonoBehaviour, IDamageable, IEdgeDetecter
     private SpriteRenderer spriteRenderer;
     private BossCombat bossCombat;
     private Image healthBar;
+    public GameObject endGame;
 
     private bool isGrounded = false;
     public bool isDead;
@@ -225,5 +226,6 @@ public class Boss : MonoBehaviour, IDamageable, IEdgeDetecter
     private void PerformDeath()
     {
         animator.SetTrigger("Death");
+        endGame.SetActive(true);
     }
 }

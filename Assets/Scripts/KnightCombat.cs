@@ -15,6 +15,10 @@ public class KnightCombat : MonoBehaviour
     [SerializeField] public float attackRange;
     [SerializeField] public LayerMask enemyLayers;
     [FormerlySerializedAs("damage")] [SerializeField] public int attackDamage = 30;
+    
+    [SerializeField] private AudioClip swordSound;
+    [SerializeField] private AudioClip swordHitSound;
+    [SerializeField] public AudioSource _swordAudioSource;
 
     private void Awake()
     {
@@ -32,11 +36,28 @@ public class KnightCombat : MonoBehaviour
 
     private void Attack()
     {
+        bool t = false;
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
         foreach (var enemy in hitEnemies)
         {
-            enemy.GetComponent<IDamageable>().TakeDamage(attackDamage);
+            var enemyScript = enemy.GetComponent<IDamageable>();
+            if (enemyScript.IsAlive())
+            {
+                t = true;
+                enemyScript.TakeDamage(attackDamage);
+            }
+        }
+
+        if (t)
+        {
+            _swordAudioSource.clip = swordHitSound;
+            _swordAudioSource.Play();
+        }
+        else
+        {
+            _swordAudioSource.clip = swordSound;
+            _swordAudioSource.Play();
         }
         
         _currentAttack++;

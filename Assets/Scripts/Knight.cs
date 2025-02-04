@@ -26,11 +26,19 @@ public class Knight : MonoBehaviour
     private Image healthBar;
     private Image healthBarCover;
     private TextMeshProUGUI soulsText;
+    private TextMeshProUGUI HealthNumber;
 
+    [FormerlySerializedAs("maxHealh")]
     [Header("Health Parameters")]
-    [SerializeField] private float maxHealh = 100.0f;
+    [SerializeField] private float maxHealth = 100.0f;
     private const float startingHealth = 100.0f;
     private float _currentHealth;
+
+    [Header("Sounds")] 
+    [SerializeField] private AudioClip[] footStepSounds;
+    private int footStepIndex = 0;
+    [SerializeField] public AudioSource _footstepAudioSource;
+    
 
     private Animator _animator;
     private KnightCombat _knightCombat;
@@ -42,11 +50,12 @@ public class Knight : MonoBehaviour
 
     private bool _grounded;
     private bool _rolling;
+    private bool _isDead;
     private bool _rollShield;
     private bool _edgeGrabbing;
     private bool _canGrabEdge = true;
     private int _facingDirection = 1;
-    private int _soulsCount;
+    private int _soulsCount = 0;
 
     private float _delayToIdle;
     private float _rollDuration = 0.5f;
@@ -85,18 +94,20 @@ public class Knight : MonoBehaviour
         
         if (Instance._currentHealth <= 0)
         {
-            Instance._currentHealth = Instance.maxHealh;
+            Instance._currentHealth = Instance.maxHealth;
         }
         InitializeComponents();
 
-        UpdateSouls(0);
-        UpdateHealth(0);
-        UpdateDamage(0);
+        updateHealthUI();
+        updateSoulUI();
     }
     
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         InitializeUI();
+        _isDead = false;
+        updateSoulUI();
+        updateHealthUI();
         
         _animator.Play("Fall", 0, 0f);
         HandleAnimations();
@@ -113,10 +124,12 @@ public class Knight : MonoBehaviour
             healthBar = canvas.transform.Find("HealthBar Filled")?.GetComponent<Image>();
             healthBarCover = canvas.transform.Find("Healthbar Background")?.GetComponent<Image>();
             soulsText = canvas.transform.Find("SoulCount")?.GetComponent<TextMeshProUGUI>();
+            HealthNumber = canvas.transform.Find("HealthNumber")?.GetComponent<TextMeshProUGUI>();
 
             if (healthBar == null) Debug.LogError("HealthBar not found in Canvas.");
             if (healthBarCover == null) Debug.LogError("HealthBarCover not found in Canvas.");
             if (soulsText == null) Debug.LogError("SoulsText not found in Canvas.");
+            if (HealthNumber == null) Debug.LogError("HealthNumber not found in Canvas.");
         }
         else
         {
@@ -131,6 +144,7 @@ public class Knight : MonoBehaviour
         _animator = GetComponent<Animator>();
         _body2d = GetComponent<Rigidbody2D>();
         _knightCombat = GetComponent<KnightCombat>();
+        // _audioSource = GetComponent<AudioSource>();
 
         _groundSensor = transform.Find("GroundSensor")?.GetComponent<Sensor_Knight>();
         _edgeSensor = transform.Find("EdgeSensor")?.GetComponent<KnighEdgeSensor>();
@@ -144,15 +158,32 @@ public class Knight : MonoBehaviour
 
     private void Update()
     {
-        HandleTimers();
-        HandleGroundCheck();
-        HandleEdgeGrab();
-        HandleMovement();
-        HandleAnimations();
-        CheckRespawn();
-        CheckRespawn();
+        SceneChangeCheat();
+        if (!_isDead)   
+        {
+            HandleTimers();
+            HandleGroundCheck();
+            HandleEdgeGrab();
+            HandleMovement();
+            HandleAnimations();
+            CheckRespawn();
+        }
     }
-    
+
+    private void SceneChangeCheat()
+    {
+        if (Input.GetKeyDown("]"))
+        {
+            int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(currentSceneIndex + 1);
+        }
+        if (Input.GetKeyDown("["))
+        {
+            int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(currentSceneIndex - 1);
+        }
+    }
+
     private void HandleEdgeGrab()
     {
         if (!Instance._edgeGrabbing && _edgeSensor.isGround && !_aboveEdgeSensor.isGround && !_behindEdgeSensor.isGround && Instance._canGrabEdge)
@@ -206,6 +237,20 @@ public class Knight : MonoBehaviour
 
         if (!Instance._rolling)
             _body2d.velocity = new Vector2(inputX * speed, _body2d.velocity.y);
+
+        if (_body2d.velocity.x != 0 && _grounded)
+        {
+            if (!_footstepAudioSource.isPlaying)
+            {
+                _footstepAudioSource.clip = footStepSounds[footStepIndex % footStepSounds.Length];
+                footStepIndex++;
+                _footstepAudioSource.Play();
+            }
+        }
+        else
+        {
+            _footstepAudioSource.Stop();
+        }
 
         _animator.SetFloat(AirSpeedY, _body2d.velocity.y);
     }
@@ -293,10 +338,11 @@ public class Knight : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (Instance._rollShield) return;
+        if (Instance._rollShield || _isDead) return;
 
         Instance._currentHealth -= damage;
-        healthBar.fillAmount = Instance._currentHealth / Instance.maxHealh;
+        HealthNumber.text = _currentHealth.ToString();
+        healthBar.fillAmount = Instance._currentHealth / Instance.maxHealth;
 
         if (Instance._currentHealth <= 0) Die();
         else _animator.SetTrigger(Hurt);
@@ -305,6 +351,7 @@ public class Knight : MonoBehaviour
     private void Die()
     {
         _animator.SetTrigger(Death);
+        _isDead = true;
         
         StartCoroutine(RespawnAfterDeath());
     }
@@ -345,17 +392,37 @@ public class Knight : MonoBehaviour
 
     public void UpdateHealth(int health)
     {
-        Instance.maxHealh += health;
-        float healthPercent = Instance.maxHealh / startingHealth;
+        Instance.maxHealth += health;
+        Instance._currentHealth = Instance.maxHealth;
+        updateHealthUI();
+    }
+
+    private void updateHealthUI()
+    {
+        float healthPercent = Instance.maxHealth / startingHealth;
         healthBar.rectTransform.localScale = new(healthPercent, 1f, 1f);
         healthBarCover.rectTransform.localScale = new(1f, 1f, 1f);
+        
         float healthCoverSize = healthBar.rectTransform.sizeDelta.x * healthBar.rectTransform.localScale.x + 20;
-        healthBarCover.rectTransform.sizeDelta = new(healthCoverSize,healthBarCover.rectTransform.sizeDelta.y);
-        Instance._currentHealth = Instance.maxHealh;
+        healthBarCover.rectTransform.sizeDelta = new(healthCoverSize,healthBarCover.rectTransform.sizeDelta.y); 
+        
+        HealthNumber.text = _currentHealth.ToString();
+        healthBar.fillAmount = Instance._currentHealth / Instance.maxHealth;
+        
+        Debug.Log("Updated health ui : ");
+        Debug.Log(healthPercent);
+        Debug.Log(healthBarCover.rectTransform.sizeDelta);
+        Debug.Log(healthBar.rectTransform.localScale);
+        Debug.Log(healthCoverSize);
+    }
+
+    private void updateSoulUI()
+    {
+        soulsText.text = Instance._soulsCount.ToString();
     }
 
     public bool CanAttack()
     {
-        return !_rolling && !_edgeGrabbing;
+        return !_rolling && !_edgeGrabbing && !_isDead;
     }
 }

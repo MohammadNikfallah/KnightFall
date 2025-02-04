@@ -220,6 +220,11 @@ public class Bandit : MonoBehaviour, IDamageable, IEdgeDetecter
         }
     }
 
+    public bool IsAlive()
+    {
+        return !isDead;
+    }
+
     private void SplashBlood()
     {
         Vector3 bloodPosition = transform.position + new Vector3(moveDirection * -0.5f, 0.5f, 0); // Offset behind the enemy

@@ -282,7 +282,6 @@ MonoBehaviour:
   reachableDistance: 5
   enemyPrefabs:
   - {fileID: 2006365053481971667, guid: 9d50d4e70bd396a478e6724aae674837, type: 3}
-  - {fileID: 8806627494377474642, guid: f4a7cabf2c0949945ad5f2cc0bd32812, type: 3}
   specialPrefab: {fileID: 5749520597567846985, guid: e14fc26a8ae8095408f6c130eaa53150, type: 3}
   enemySpawnChance: 0.5
 --- !u!4 &1434527050

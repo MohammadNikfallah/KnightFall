@@ -54,7 +54,12 @@ public class TrainingDummy : MonoBehaviour, IDamageable
         receivedHit = true;
         StartCoroutine(JiggleEffect(player.transform.position - gameObject.transform.position));
     }
-    
+
+    public bool IsAlive()
+    {
+        return true;
+    }
+
     private void ShowFloatingText(int damage)
     {
         if (floatingTextPrefab != null)

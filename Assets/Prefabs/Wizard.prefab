@@ -263,9 +263,10 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  attackDamage: 30
-  attackFreq: 5
+  attackDamage: 25
   damageDelay: 0.3
+  smallCooldown: 1
+  bigCooldown: 4
 --- !u!1 &4199657758652968517
 GameObject:
   m_ObjectHideFlags: 0

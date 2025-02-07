@@ -2501,11 +2501,6 @@ MonoBehaviour:
   floatingTextOffset: {x: 0, y: 2.5, z: 0}
   jiggleAmount: 10
   jiggleDuration: 0.2
---- !u!82 &595756058 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 6786412296581417514, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-  m_PrefabInstance: {fileID: 2013834191}
-  m_PrefabAsset: {fileID: 0}
 --- !u!82 &595756059 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 9221096691984541309, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
@@ -4143,14 +4138,6 @@ PrefabInstance:
       value: HeroKnight
       objectReference: {fileID: 0}
     - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: _swordAudioSource
-      value: 
-      objectReference: {fileID: 595756059}
-    - target: {fileID: 8009344858354130868, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
-      propertyPath: _footstepAudioSource
-      value: 
-      objectReference: {fileID: 595756058}
-    - target: {fileID: 9197637491105449687, guid: 519c477987104844c9c1fe9bf61c9304, type: 3}
       propertyPath: _swordAudioSource
       value: 
       objectReference: {fileID: 595756059}

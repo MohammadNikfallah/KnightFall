@@ -837,7 +837,7 @@ MonoBehaviour:
   attackDamage: 30
   swordSound: {fileID: 8300000, guid: 7d4643a76f9a1c945b3c4d66a7dd3e92, type: 3}
   swordHitSound: {fileID: 8300000, guid: 7249495e66847534ca4820163fdf55a0, type: 3}
-  _swordAudioSource: {fileID: 0}
+  _swordAudioSource: {fileID: 9221096691984541309}
 --- !u!114 &8009344858354130868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -869,7 +869,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b20d2e6dbf9bc3949af09a79e65d4bc9, type: 3}
   - {fileID: 8300000, guid: 12e0eddea2add72408cc9d431328d472, type: 3}
   - {fileID: 8300000, guid: 34bc953b974f8c0488dfb22a2682c813, type: 3}
-  _footstepAudioSource: {fileID: 0}
+  _footstepAudioSource: {fileID: 6786412296581417514}
 --- !u!82 &6786412296581417514
 AudioSource:
   m_ObjectHideFlags: 0

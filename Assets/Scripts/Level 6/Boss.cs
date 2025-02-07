@@ -4,10 +4,15 @@ using System.Linq;
 using DefaultNamespace;
 using Level_6;
 using UnityEngine;
+using UnityEngine.Rendering.VirtualTexturing;
 using UnityEngine.UI;
 
 public class Boss : MonoBehaviour, IDamageable, IEdgeDetecter
 {
+    [Header("GroundCheck")]
+    public float groundCheckDistance = 0.1f;
+    public LayerMask groundLayerMask;
+    
     [Header("Health Settings")]
     [SerializeField] private float maxHealth = 300;
     private float currentHealth;
@@ -63,14 +68,92 @@ public class Boss : MonoBehaviour, IDamageable, IEdgeDetecter
 
     private void Update()
     {
+        HandleAnimator();
         UpdateTimers();
         ProcessHitReaction();
         ProcessDeath();
+        CheckPlayerInput();
 
-        if (!isDead)
+        // if (!isDead)
+        // {
+        //     DetectPlayer();
+        //     HandleMovement();
+        // }
+    }
+
+    private void HandleAnimator()
+    {
+        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, groundLayerMask);
+        animator.SetBool("Grounded", isGrounded);
+        animator.SetFloat("AirSpeedY", rigidBody.velocity.y);
+    }
+
+    private void CheckPlayerInput()
+    {
+        float inputX = Input.GetAxis("Horizontal");
+        if (inputX < 0)
         {
-            DetectPlayer();
-            HandleMovement();
+            MoveLeft();
+        } else if (inputX > 0)
+        {
+            MoveRight();
+        } else if (Input.GetKeyDown("space"))
+        {
+            HandleJump();
+        }
+        else
+        {
+            Idle();
+        }
+    }
+
+    private void HandleJump()
+    {
+        HandleAnimator();
+        if (isGrounded)
+        {
+            rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
+            animator.SetTrigger("Jump");
+        }
+        animator.SetFloat("AirSpeedY", rigidBody.velocity.y);
+    }
+
+    private void MoveLeft()
+    {
+        float movement = -moveSpeed;
+        
+        rigidBody.velocity = new Vector2(movement, rigidBody.velocity.y);
+
+
+        HandleAnimState(movement);
+    }
+    
+    private void Idle()
+    {
+        rigidBody.velocity = new Vector2(0, rigidBody.velocity.y);
+        HandleAnimState(0);
+    }
+    
+    private void MoveRight()
+    {
+        float movement = moveSpeed;
+        
+        rigidBody.velocity = new Vector2(movement, rigidBody.velocity.y);
+
+
+        HandleAnimState(movement);
+    }
+
+    private void HandleAnimState(float movement)
+    {
+        if (movement != 0)
+        {
+            animator.SetInteger("AnimState", 1);
+            UpdateFacingDirection(movement);
+        }
+        else
+        {
+            animator.SetInteger("AnimState", 0);
         }
     }
 
@@ -140,16 +223,7 @@ public class Boss : MonoBehaviour, IDamageable, IEdgeDetecter
         // Apply movement
         rigidBody.velocity = new Vector2(movement, rigidBody.velocity.y);
 
-        // Set animation state
-        if (movement != 0)
-        {
-            animator.SetInteger("AnimState", 1);
-            UpdateFacingDirection(movement);
-        }
-        else
-        {
-            animator.SetInteger("AnimState", 0);
-        }
+        HandleAnimState(movement);
     }
 
     private void UpdateFacingDirection(float movement)
@@ -227,5 +301,11 @@ public class Boss : MonoBehaviour, IDamageable, IEdgeDetecter
     {
         animator.SetTrigger("Death");
         endGame.SetActive(true);
+    }
+    
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * groundCheckDistance);
     }
 }
